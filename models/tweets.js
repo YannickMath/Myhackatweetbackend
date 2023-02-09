@@ -1,8 +1,8 @@
-const mongoose = require("mongoose");
+// const mongoose = require("mongoose");
 
-const tweetSchema = mongoose.Schema({
-  tweet: String,
-});
+// const tweetSchema = mongoose.Schema({
+//   tweet: String,
+// });
 
-const Tweet = mongoose.model("tweets", tweetSchema);
-module.exports = Tweet;
+// const Tweet = mongoose.model("tweets", tweetSchema);
+// module.exports = Tweet;

@@ -37,19 +37,29 @@ router.post("/signup", async (req, res) => {
 
 router.post("/signin", async function (req, res) {
   if (!checkBody(req.body, ["username", "password"])) {
-    res.json({ result: false, error: "Missing or empty fields" });
-    return;
+    return res.status(400).json({ result: false, error: "Missing or empty fields" });
   }
+
   const { username, password } = req.body;
-  const data = await User.findOne({ username });
-  if (data) {
-    const isPasswordMatch = await bcrypt.compare(password, data.password);
-    if (!isPasswordMatch) {
-      res.json({ result: true, user: data.username });
-    } else {
-      res.json({ result: false, error: "Account not valid" });
+
+  try {
+    const user = await User.findOne({ username });
+    if (!user) {
+      console.log(res.json)
+      return res.status(401).json({ result: false, error: "User not found" });
     }
+
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    if (!isPasswordMatch) {
+      return res.status(401).json({ result: false, error: "Incorrect password" });
+    }
+
+    return res.json({ result: true, user });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ result: false, error: "Internal server error" });
   }
 });
+
 
 module.exports = router;
