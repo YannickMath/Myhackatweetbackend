@@ -37,19 +37,56 @@ router.post("/tweet/:token", async function (req, res) {
   }
 });
 
-
-router.get("/likeTweet/:userId/:tweetId", async (req, res) => {
+router.put("/likeTweet/:userId/:tweetId", async (req, res) => {
   const userId = req.params.userId;
   const tweetId = req.params.tweetId;
-console.log ('TWEETID', typeof tweetId)
-  const data = await User.findOne({ _id: userId}, {
-$set : { "tweet.$.like": {likeState: false}
-  } });
-  const returnTweet = data.tweet.map((e) => e._id )
-  if (data) {
-    res.json({ result: true, data: returnTweet.filter((e)=> e === e.tweet)});
+
+  const user = await User.findOne({ _id: userId });
+  if (!user) return res.json({ result: false, message: "User not found" });
+
+  const tweetIndex = user.tweet.findIndex((e) => e._id == tweetId);
+  if (tweetIndex === -1)
+    return res.json({ result: false, message: "Tweet not found" });
+
+  let like = user.tweet[tweetIndex].like.find(
+    (like) => like.likeState === true
+  );
+  if (!like) {
+    like = { likeState: true, likeCount: 1 };
+    user.tweet[tweetIndex].like.push(like);
+  } else {
+    like.likeCount++;
   }
 
+  await user.save();
+
+  res.json({ result: true, data: user.tweet[tweetIndex] });
+});
+
+router.put("/dislikeTweet/:userId/:tweetId", async (req, res) => {
+  const userId = req.params.userId;
+  const tweetId = req.params.tweetId;
+
+  const user = await User.findOne({ _id: userId });
+  if (!user) return res.json({ result: false, message: "User not found" });
+
+  const tweetIndex = user.tweet.findIndex((e) => e._id == tweetId);
+  if (tweetIndex === -1)
+    return res.json({ result: false, message: "Tweet not found" });
+
+  let dislike = user.tweet[tweetIndex].dislike.find(
+    (dislike) => dislike.dislikeState === true
+  );
+  if (!dislike) {
+    dislike = { dislikeState: true, dislikeCount: 1 };
+    user.tweet[tweetIndex].dislike.push(dislike);
+  } else {
+    dislike.dislikeCount++;
+  }
+
+  await user.save();
+
+  res.json({ result: true, data: user.tweet[tweetIndex] });
 });
 
 router.put("/deleteTweet/:token/:tweetId", async (req, res) => {
