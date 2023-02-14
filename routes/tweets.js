@@ -24,8 +24,8 @@ router.post("/tweet/:token", async function (req, res) {
         $push: {
           tweet: {
             tweet: newTweet,
-            like: [{ likeCount: 0, likeState: true }],
-            dislike: [{ dislikeCount: 0, dislikeState: true }],
+            like: { likeCount: 0, likeState: true },
+            dislike: { dislikeCount: 0, dislikeState: true },
           },
         },
       },
@@ -48,15 +48,14 @@ router.put("/likeTweet/:userId/:tweetId", async (req, res) => {
   if (tweetIndex === -1)
     return res.json({ result: false, message: "Tweet not found" });
 
-  let like = user.tweet[tweetIndex].like.find(
-    (like) => like.likeState === true
-  );
-  if (!like) {
-    like = { likeState: true, likeCount: 1 };
-    user.tweet[tweetIndex].like.push(like);
-  } else {
-    like.likeCount++;
-  }
+    const tweet = user.tweet[tweetIndex];
+
+    if (!tweet.like.likeState) {
+      tweet.like.likeState = true;
+      tweet.like.likeCount = 1;
+    } else {
+      tweet.like.likeCount++;
+    }
 
   await user.save();
 
@@ -74,18 +73,17 @@ router.put("/dislikeTweet/:userId/:tweetId", async (req, res) => {
   if (tweetIndex === -1)
     return res.json({ result: false, message: "Tweet not found" });
 
-  let dislike = user.tweet[tweetIndex].dislike.find(
-    (dislike) => dislike.dislikeState === true
-  );
-  if (!dislike) {
-    dislike = { dislikeState: true, dislikeCount: 1 };
-    user.tweet[tweetIndex].dislike.push(dislike);
-  } else {
-    dislike.dislikeCount++;
-  }
+    const tweet = user.tweet[tweetIndex];
+
+    if (!tweet.dislike.dislikeState) {
+      tweet.dislike.dislikeState = true;
+      tweet.dislike.dislikeCount = 1;
+    } else {
+      tweet.dislike.dislikeCount++;
+    }
 
   await user.save();
-
+console.log('USER.TWEETINDEX', user.tweet[tweetIndex] )
   res.json({ result: true, data: user.tweet[tweetIndex] });
 });
 

@@ -12,8 +12,8 @@ const dislikeSchema = mongoose.Schema({
 
 const tweetSchema = mongoose.Schema({
   tweet: String,
-  like: [likeSchema],
-  dislike: [dislikeSchema],
+  like: likeSchema,
+  dislike: dislikeSchema,
 });
 
 const userSchema = mongoose.Schema({
