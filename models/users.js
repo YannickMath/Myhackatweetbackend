@@ -17,6 +17,7 @@ const tweetSchema = mongoose.Schema({
 });
 
 const userSchema = mongoose.Schema({
+  
   firstname: String,
   username: String,
   password: String,

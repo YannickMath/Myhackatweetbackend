@@ -66,7 +66,7 @@ router.put("/dislikeTweet/:userId/:tweetId", async (req, res) => {
   const userId = req.params.userId;
   const tweetId = req.params.tweetId;
 
-  const user = await User.findOne({ _id: userId });
+  const user = await User.findById(userId);
   if (!user) return res.json({ result: false, message: "User not found" });
 
   const tweetIndex = user.tweet.findIndex((e) => e._id == tweetId);
@@ -83,7 +83,7 @@ router.put("/dislikeTweet/:userId/:tweetId", async (req, res) => {
     }
 
   await user.save();
-console.log('USER.TWEETINDEX', user.tweet[tweetIndex] )
+
   res.json({ result: true, data: user.tweet[tweetIndex] });
 });
 
