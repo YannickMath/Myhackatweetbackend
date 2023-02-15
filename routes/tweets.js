@@ -7,6 +7,7 @@ const User = require("../models/users");
 require("../models/connection");
 const mongoose = require("mongoose");
 
+
 router.get("/", async (req, res) => {
   const user = await User.find();
   res.json({ result: true, user });
@@ -31,76 +32,82 @@ router.post("/tweet/:token", async function (req, res) {
       },
       { new: true }
     );
-    res.json({ result: true, tweet: updatedUser });
+    if (data) {
+      res.json({ result: true, tweet: updatedUser });
+    }
   } catch (err) {
     res.json({ result: false, error: err });
   }
 });
 
-router.put("/likeTweet/:userId/:tweetId", async (req, res) => {
-  const userId = req.params.userId;
+router.put("/likeTweet/:userToken/:tweetId", async (req, res) => {
+  const userToken = req.params.userToken;
   const tweetId = req.params.tweetId;
 
-  const user = await User.findOne({ _id: userId });
+  const user = await User.findOne({ token: userToken });
   if (!user) return res.json({ result: false, message: "User not found" });
 
   const tweetIndex = user.tweet.findIndex((e) => e._id == tweetId);
   if (tweetIndex === -1)
     return res.json({ result: false, message: "Tweet not found" });
 
-    const tweet = user.tweet[tweetIndex];
+  const tweet = user.tweet[tweetIndex];
 
-    if (!tweet.like.likeState) {
-      tweet.like.likeState = true;
-      tweet.like.likeCount = 1;
-    } else {
-      tweet.like.likeCount++;
-    }
+  if (!tweet.like.likeState) {
+    tweet.like.likeState = true;
+    tweet.like.likeCount = 1;
+  } else {
+    tweet.like.likeCount++;
+  }
 
   await user.save();
-
   res.json({ result: true, data: user.tweet[tweetIndex] });
 });
 
-router.put("/dislikeTweet/:userId/:tweetId", async (req, res) => {
-  const userId = req.params.userId;
+router.put("/dislikeTweet/:userToken/:tweetId", async (req, res) => {
+  const userToken = req.params.userToken;
   const tweetId = req.params.tweetId;
 
-  const user = await User.findById(userId);
+  const user = await User.findOne({ token: userToken });
   if (!user) return res.json({ result: false, message: "User not found" });
-
+  
   const tweetIndex = user.tweet.findIndex((e) => e._id == tweetId);
   if (tweetIndex === -1)
-    return res.json({ result: false, message: "Tweet not found" });
+  return res.json({ result: false, message: "Tweet not found" });
+  
+  const tweet = user.tweet[tweetIndex];
+  
 
-    const tweet = user.tweet[tweetIndex];
-
-    if (!tweet.dislike.dislikeState) {
-      tweet.dislike.dislikeState = true;
-      tweet.dislike.dislikeCount = 1;
-    } else {
-      tweet.dislike.dislikeCount++;
-    }
+  if (!tweet.dislike.dislikeState) {
+    tweet.dislike.dislikeState = true;
+    tweet.dislike.dislikeCount = 1;
+  } else {
+    tweet.dislike.dislikeCount++;
+  }
 
   await user.save();
 
   res.json({ result: true, data: user.tweet[tweetIndex] });
+  console.log("USER.TWEET", user.tweet[tweetIndex]);
+
 });
 
 router.put("/deleteTweet/:token/:tweetId", async (req, res) => {
   const userToken = req.params.token;
   const tweetId = req.params.tweetId;
   try {
-    const deletedTweet = await User.findOneAndUpdate(
-      { token: userToken, tweetId },
-      { $pull: { tweet: { tweet: tweetId } } },
+    const updatedUser = await User.findOneAndUpdate(
+      { token: userToken },
+      { $pull: { tweet: { _id: tweetId } } },
       { new: true }
     );
-    console.log("TWEETID", tweetId);
-    res.json({ result: true, tweet: deletedTweet });
-    // console.log('TWEET', tweet)
+    if (!updatedUser) {
+      return res.status(404).json({ result: false, error: "User not found" });
+    }
+    res.json({ result: true, tweet: updatedUser.tweet });
   } catch (err) {
-    res.json({ result: false, error: err });
+    console.error(err);
+    res.status(500).json({ result: false, error: err.message });
   }
 });
 
