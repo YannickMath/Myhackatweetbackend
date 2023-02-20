@@ -11,12 +11,17 @@ const mongoose = require("mongoose");
 router.get("/", async (req, res) => {
   const user = await User.find();
   res.json({ result: true, user });
-  // console.log("USER", user);
 });
+
+
+
+
 
 router.post("/tweet/:token", async function (req, res) {
   const newTweet = req.body.tweet;
   const token = req.params.token;
+  const createdAt = new Date();
+  const formattedDate = createdAt.toLocaleString('en-US', { timeZone: 'UTC' });
 
   try {
     const updatedUser = await User.findOneAndUpdate(
@@ -27,17 +32,18 @@ router.post("/tweet/:token", async function (req, res) {
             tweet: newTweet,
             like: { likeCount: 0, likeState: true },
             dislike: { dislikeCount: 0, dislikeState: true },
+            createdAt: new Date(),
           },
         },
       },
       { new: true }
-    );
-    if (data) {
-      res.json({ result: true, tweet: updatedUser });
+      );
+      if (data) {
+        res.json({ result: true, tweet: updatedUser });
+      }
+    } catch (err) {
+      res.json({ result: false, error: err });
     }
-  } catch (err) {
-    res.json({ result: false, error: err });
-  }
 });
 
 router.put("/likeTweet/:userToken/:tweetId", async (req, res) => {
@@ -88,7 +94,6 @@ router.put("/dislikeTweet/:userToken/:tweetId", async (req, res) => {
   await user.save();
 
   res.json({ result: true, data: user.tweet[tweetIndex] });
-  console.log("USER.TWEET", user.tweet[tweetIndex]);
 
 });
 

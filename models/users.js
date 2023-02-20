@@ -14,6 +14,7 @@ const tweetSchema = mongoose.Schema({
   tweet: String,
   like: likeSchema,
   dislike: dislikeSchema,
+  createdAt: { type: Date, default: Date.now }
 });
 
 const userSchema = mongoose.Schema({
