@@ -9,8 +9,22 @@ const mongoose = require("mongoose");
 
 
 router.get("/", async (req, res) => {
-  const user = await User.find();
-  res.json({ result: true, user });
+  try {
+    const user = await User.aggregate([
+      // $unwind permet de déroulé l'ensemble de tous les tweets
+      { $unwind: "$tweet" },
+      //$sort permet le tri , l'indice -1 indique par odre décroissant
+      { $sort: { "tweet.createdAt": -1 } },
+      //$project permet de projeter seulement les champs tweet et createdAt et exclure le champ _id.
+      //$replaceRoot permet 
+    ]);
+
+    res.json({ result: true, user });
+    console.log ('USER', user)
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ result: false, message: "Error fetching tweets" });
+  }
 });
 
 
@@ -20,8 +34,8 @@ router.get("/", async (req, res) => {
 router.post("/tweet/:token", async function (req, res) {
   const newTweet = req.body.tweet;
   const token = req.params.token;
-  const createdAt = new Date();
-  const formattedDate = createdAt.toLocaleString('en-US', { timeZone: 'UTC' });
+  // const createdAt = new Date();
+  // const formattedDate = createdAt.toLocaleString('en-US', { timeZone: 'UTC' });
 
   try {
     const updatedUser = await User.findOneAndUpdate(
