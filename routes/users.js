@@ -5,7 +5,62 @@ const bcrypt = require("bcrypt");
 const User = require("../models/users");
 require("../models/connection");
 const { checkBody } = require("../modules/checkBody");
-const { urlencoded } = require("express");
+const cloudinary = require("cloudinary").v2;
+const multer = require("multer");
+
+// configuration de cloudinary avec vos identifiants d'API
+cloudinary.config({
+  cloud_name: "dt4qrinzo",
+  api_key: "256446719873524",
+  api_secret: "op4tnJfM_3bmlcVXNBO0pvyReR0",
+});
+
+const upload = multer({ dest: "tmp/" });
+const fs = require("fs");
+
+router.post("/photo/:token", upload.single("file"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "Aucun fichier sélectionné" });
+    }
+
+    const result = await cloudinary.uploader.upload(req.file.path);
+    const user = await User.findOneAndUpdate(
+      { token: req.params.token },
+      { photo: result.secure_url },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur introuvable" });
+    }
+
+    // Supprimer le fichier du disque
+    fs.unlink(req.file.path, (err) => {
+      if (err) {
+        console.error(err);
+      }
+    });
+
+    res.json({ result: true, user });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ message: "Erreur lors de la mise à jour de l'utilisateur" });
+  }
+});
+
+router.get("/photoUser/:token", async (req, res) => {
+  const token = req.params.token;
+  const user = await User.findOne({ token });
+  if (user) {
+    res.json({ result: true, profilePicture: user.photo });
+    console.log("userrrrr", user.photo);
+  } else {
+    res.json({ result: false, error: "User has no profile picture" });
+  }
+});
 
 router.post("/signup", async (req, res) => {
   if (!checkBody(req.body, ["firstname", "username", "password"])) {
@@ -28,63 +83,44 @@ router.post("/signup", async (req, res) => {
     username,
     password: hash,
     token: uid2(32),
-    
   });
 
   const savedUser = await newUser.save();
   res.json({ result: true, user: savedUser });
 });
 
-
-
 router.post("/signin", async function (req, res) {
   if (!checkBody(req.body, ["username", "password"])) {
-    return res.status(400).json({ result: false, error: "Missing or empty fields" });
+    return res
+      .status(400)
+      .json({ result: false, error: "Missing or empty fields" });
   }
 
   const { username, password } = req.body;
+  // const firstName = req.params.firstName
 
   try {
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ username});
     if (!user) {
-      console.log(res.json)
+      console.log(res.json);
       return res.status(401).json({ result: false, error: "User not found" });
     }
 
     const isPasswordMatch = await bcrypt.compare(password, user.password);
     if (!isPasswordMatch) {
-      return res.status(401).json({ result: false, error: "Incorrect password" });
+      return res
+        .status(401)
+        .json({ result: false, error: "Incorrect password" });
     }
-
+   
+    console.log("USER", user)
     return res.json({ result: true, user });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ result: false, error: "Internal server error" });
+    return res
+    .status(500)
+    .json({ result: false, error: "Internal server error" });
   }
 });
-
-router.post("/photo/:token", async function (req, res) {
-  const token = req.params.token
-  try {
-    const user = await User.findOneAndUpdate(
-      { token},
-      { 
-        $push: {
-          photo: {
-            photo: imageUrl
-          },
-        },
-      },
-      { new: true });
-      if (data) {
-        res.json({ result: true, tweet: updatedUser });
-        console.log("DATARESULT", tweet.updatedUser)
-        console.log("RESULT", result)
-      }
-    } catch (err) {
-      res.json({ result: false, error: err });
-    }
-});
-
 
 module.exports = router;
