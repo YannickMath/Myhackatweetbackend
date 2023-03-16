@@ -56,7 +56,6 @@ router.get("/photoUser/:token", async (req, res) => {
   const user = await User.findOne({ token });
   if (user) {
     res.json({ result: true, profilePicture: user.photo });
-    console.log("userrrrr", user.photo);
   } else {
     res.json({ result: false, error: "User has no profile picture" });
   }
@@ -97,10 +96,9 @@ router.post("/signin", async function (req, res) {
   }
 
   const { username, password } = req.body;
-  // const firstName = req.params.firstName
 
   try {
-    const user = await User.findOne({ username});
+    const user = await User.findOne({ username });
     if (!user) {
       console.log(res.json);
       return res.status(401).json({ result: false, error: "User not found" });
@@ -112,14 +110,13 @@ router.post("/signin", async function (req, res) {
         .status(401)
         .json({ result: false, error: "Incorrect password" });
     }
-   
-    console.log("USER", user)
+
     return res.json({ result: true, user });
   } catch (err) {
     console.error(err);
     return res
-    .status(500)
-    .json({ result: false, error: "Internal server error" });
+      .status(500)
+      .json({ result: false, error: "Internal server error" });
   }
 });
 
