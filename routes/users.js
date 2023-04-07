@@ -15,7 +15,8 @@ cloudinary.config({
   api_secret: "op4tnJfM_3bmlcVXNBO0pvyReR0",
 });
 
-const upload = multer({ dest: "tmp/" });
+const upload = multer({ dest: '/tmp/' });
+
 const fs = require("fs");
 
 router.post("/photo/:token", upload.single("file"), async (req, res) => {
