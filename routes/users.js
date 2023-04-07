@@ -4,7 +4,7 @@ const User = require("../models/users");
 const uid2 = require("uid2");
 const bcrypt = require("bcrypt");
 // require("../models/connection");
-const {checkBody} = require("../modules/checkBody")
+const checkBody = require("../modules/checkBody")
 const cloudinary = require("cloudinary").v2;
 const multer = require("multer");
 
