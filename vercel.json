@@ -1,27 +1,12 @@
 {
     "version": 2,
-    "builds": [
-      {
-        "src": "app.js",
-        "use": "@vercel/node"
-      }
-    ],
-    "routes": [
-      {
-        "src": "/api/(.*)",
-        "dest": "api/index.js"
-      },
-      {
-        "src": "/(.*)",
-        "dest": "app.js"
-      }
-    ],
-    "env": {
-      "DB_HOST": "localhost",
-      "DB_PORT": "5432",
-      "DB_USER": "username",
-      "DB_PASSWORD": "password",
-      "DB_NAME": "database"
+    "builds": [{
+    "src": "app.js",
+    "use": "@vercel/node"
+    }],
+    "routes": [{
+    "src": "/(.*)",
+    "dest": "app.js"
+    }]
     }
-  }
-  
+    
