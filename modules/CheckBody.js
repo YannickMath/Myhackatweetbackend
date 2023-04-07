@@ -1,14 +1,14 @@
-function checkBody(body, keys) {
-  let isValid = true;
+// function checkBody(body, keys) {
+//   let isValid = true;
 
-  for (const field of keys) {
-    if (!body[field] || body[field] === "") {
-      isValid = false;
-    }
-  }
+//   for (const field of keys) {
+//     if (!body[field] || body[field] === "") {
+//       isValid = false;
+//     }
+//   }
 
-  return isValid;
-}
+//   return isValid;
+// }
 
-module.exports = { checkBody };
+// module.exports = { checkBody };
 

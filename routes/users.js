@@ -4,7 +4,7 @@ const User = require("../models/users");
 const uid2 = require("uid2");
 const bcrypt = require("bcrypt");
 // require("../models/connection");
-const checkBody = require("../modules/checkBody")
+// const checkBody = require("../modules/checkBody")
 const cloudinary = require("cloudinary").v2;
 const multer = require("multer");
 
@@ -62,9 +62,9 @@ router.get("/photoUser/:token", async (req, res) => {
 });
 
 router.post("/signup", async (req, res) => {
-  if (!checkBody(req.body, ["firstname", "username", "password"])) {
-    return res.json({ result: false, error: "Missing or empty fields" });
-  }
+  // if (!checkBody(req.body, ["firstname", "username", "password"])) {
+  //   return res.json({ result: false, error: "Missing or empty fields" });
+  // }
 
   const { firstname, username, password } = req.body;
   const existingUser = await User.findOne({ username, firstname });
@@ -89,11 +89,11 @@ console.log("hello")
 });
 
 router.post("/signin", async function (req, res) {
-  if (!checkBody(req.body, ["username", "password"])) {
-    return res
-      .status(400)
-      .json({ result: false, error: "Missing or empty fields" });
-  }
+  // if (!checkBody(req.body, ["username", "password"])) {
+  //   return res
+  //     .status(400)
+  //     .json({ result: false, error: "Missing or empty fields" });
+  // }
 
   const { username, password } = req.body;
 
