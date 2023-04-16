@@ -10,9 +10,9 @@ const multer = require("multer");
 
 // configuration de cloudinary avec vos identifiants d'API
 cloudinary.config({
-  cloud_name: "dt4qrinzo",
-  api_key: "256446719873524",
-  api_secret: "op4tnJfM_3bmlcVXNBO0pvyReR0",
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 const upload = multer({ dest: '/tmp/' });
